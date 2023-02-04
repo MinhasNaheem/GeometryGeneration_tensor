@@ -1,8 +1,10 @@
 import tensorflow as tf
 import pandas as pd
-from itertools import combinations
+from itertools import combinations,combinations_with_replacement
 from tensor_flow import *
 from functions import plot_fids
+from math import factorial
+import time
 tnp = tf.experimental.numpy
 
 
@@ -25,19 +27,14 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             ylim_half = int(self.ylim/2)
             zlim_half = int(self.zlim/2)
             vec = []
-            a = 3
-            
-            for i in range(-xlim_half,-15+a,a):
-                for j in range(30,ylim+a,a):
+            global sampling
+            a = sampling 
+           
+            #Defining bounds for the generation
+            for i in range(-xlim_half,xlim_half+a,a):
+                for j in range(0,ylim+a,a):
                     # for k in range(-zlim_half,zlim_half+a,a):
                     vec.append(x_axis*i+y_axis*j)
-                    vec.append(-x_axis*i+y_axis*j)
-                        # vec.append(x_axis*i+y_axis*j+zlim_half*k)
-            for i in range(-60,-15+a,a):
-                for j in range(0,30+a,a):
-                    
-                    vec.append(x_axis*i+y_axis*j)
-                    vec.append(-x_axis*i+y_axis*j)
 
             fids = tnp.array(vec,dtype='float16')
             # for i in range(-xlim_half,xlim_half+a,a):
@@ -49,29 +46,34 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return fids
 
         def tre_mesh(self,fid,combin):
-            
-            name = 'basePlate'
+            start = time.time()
+            global pass_tre
+            global number_of_fiducials
+            global number2generate
+
+            name = 'tracking_tool_new'
             csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
             minimum = 40
-            increment = 4
+            increment = 5
             fid = fid.numpy()
+
             for i in combin:
-                # print(i)
+                
+               
                 fiducials = []
-                
+                fiducials.append(tnp.array([0,-50,0]))
+                fiducials.append(tnp.array([0,110,0]))
+                fiducials.append(tnp.array([0,0,0]))
                 
 
-
-                for j in range(4):
-                    
-                    
+                for j in range(number2generate):
                     fiducials.append(fid[i[j]])
                 
                 target1 = self.target
-                target2 = self.target  + np.array([0,20,0])
+                target2 = self.target  + np.array([0,40,0])
                 tre1 = compute_tre(fiducials,target1)
                 tre2 = compute_tre(fiducials,target2)
                 tre = (tre1+tre2)/2
@@ -79,7 +81,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                 imd = compute_intermarker(fiducials,len(fiducials))
                 geo_pass = min_dist_and_incr(imd,minimum,increment)
                 
-                if tre < 0.2 and geo_pass:
+                if tre < pass_tre and geo_pass:
                     
                     print(tre)
                     tre_list.append(tre)
@@ -87,7 +89,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     ndi_con_list.append(int(geo_pass))
                     print(imd)
                     # print(len(tre_list))
-                if len(tre_list) == 100:
+                if len(tre_list) == 2:
 
                     print(tre)
                     ff = tnp.array(fids_list)
@@ -96,7 +98,8 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     fids_reshaped = ff.reshape(ff.shape[0], -1)
                     data = tnp.hstack((fids_reshaped,tt,ndi))
                     fids_col_index = []
-                    number_of_fiducials = 4
+                    
+                    
                     for col in range(number_of_fiducials):
                         col=col+1
                         ax = ['x','y','z']
@@ -113,23 +116,30 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     tre_list = []
                     ndi_con_list = []
                     # plt.scatter(np.linspace(0,len(tt),len(tt)),tt)
+                # print((time.time()-start)/60)
             return 1
 
 if __name__ == '__main__':
-    xlim = 120
-    ylim= 120
+    xlim = 90
+    ylim= 110
     zlim = 0
-    target = tnp.array([0,30,0])
+    global number2generate, pass_tre, number_of_fiducials, sampling
+    number2generate = 2
+    pass_tre = 0.5
+    number_of_fiducials = 5
+    sampling = 6
+
+    target = tnp.array([0,-200,0])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
-
     fids = gen.compute_bounce()
-
+    n = len(fids)
+    k = number2generate
+    iterations = C = factorial(n) / (factorial(k) * factorial(n - k))
+    time_taken = iterations*0.15/60**2
+    print(f'time taken {time_taken} hrs')
     fig = plot_fids(fids)
     fig.show()
-    combin = combinations(tnp.arange(len(fids)),4)
-    n = len(fids)
-    k = 2
-
+    combin = combinations(tnp.arange(len(fids)),number2generate)
     gen.tre_mesh(fids,combin)
     print('Done')
 
