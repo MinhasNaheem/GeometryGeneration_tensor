@@ -51,12 +51,12 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             global number_of_fiducials
             global number2generate
 
-            name = 'tracking_tool_new'
+            name = 'TAP_new'
             csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
-            minimum = 40
+            minimum = 45
             increment = 5
             fid = fid.numpy()
 
@@ -64,9 +64,9 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                 
                
                 fiducials = []
-                fiducials.append(tnp.array([0,-50,0]))
-                fiducials.append(tnp.array([0,110,0]))
-                fiducials.append(tnp.array([0,0,0]))
+                # fiducials.append(tnp.array([0,-50,0]))
+                # fiducials.append(tnp.array([0,110,0]))
+                # fiducials.append(tnp.array([0,0,0]))
                 
 
                 for j in range(number2generate):
@@ -120,22 +120,22 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return 1
 
 if __name__ == '__main__':
-    xlim = 90
-    ylim= 110
+    xlim = 85
+    ylim= 155
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
-    number2generate = 2
+    number2generate = 4
     pass_tre = 0.5
-    number_of_fiducials = 5
-    sampling = 6
+    number_of_fiducials = 4
+    sampling = 25
 
-    target = tnp.array([0,-200,0])
+    target = tnp.array([0,-150,65])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
     fids = gen.compute_bounce()
     n = len(fids)
     k = number2generate
     iterations = C = factorial(n) / (factorial(k) * factorial(n - k))
-    time_taken = iterations*0.15/60**2
+    time_taken = iterations*0.12/60**2
     print(f'time taken {time_taken} hrs')
     fig = plot_fids(fids)
     fig.show()
