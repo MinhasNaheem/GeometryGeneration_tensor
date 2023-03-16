@@ -120,8 +120,8 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return 1
 
 if __name__ == '__main__':
-    xlim = 85
-    ylim= 155
+    xlim = 95
+    ylim= 120
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
     number2generate = 4
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     number_of_fiducials = 4
     sampling = 25
 
-    target = tnp.array([0,-150,65])
+    target = tnp.array([0,-180,55])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
     fids = gen.compute_bounce()
     n = len(fids)
