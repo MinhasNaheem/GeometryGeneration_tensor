@@ -143,7 +143,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     tre_list.append(tre)
                     fids_list.append(fiducials)
                     ndi_con_list.append(int(geo_pass))
-                    print(imd)
+                    # print(imd)
                     # print(len(tre_list))
                 if len(tre_list) == 35:
 
@@ -181,12 +181,12 @@ if __name__ == '__main__':
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
     number2generate = 4
-    pass_tre = 0.2
+    pass_tre = 1
     number_of_fiducials = 4
-    sampling = 25
+    sampling = 50
 
     target = tnp.array([0,-50,220])
-    gen = GenerateFiducials(xlim,ylim,zlim,target,100,'PRM_triang')
+    gen = GenerateFiducials(xlim,ylim,zlim,target,sampling,'PRM_triang')
     fids = gen.get_mesh()
     n = len(fids)
     k = number2generate

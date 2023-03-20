@@ -4,7 +4,7 @@ np.set_printoptions(suppress=True)
 from functions import *
 import time
 
-filename = 'PRM_set6_325,345,0.csv'
+filename = 'PRM_set7_345,325,0tf.Tensor([  0 -50 220], shape=(3,), dtype=int32).csv'
 k = 4
 df = pd.read_csv(filename)
 # condition to check if the geometry constraints are passed
