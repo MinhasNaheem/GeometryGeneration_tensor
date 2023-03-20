@@ -4,21 +4,75 @@ from itertools import combinations,combinations_with_replacement
 from tensor_flow import *
 from functions import plot_fids
 from math import factorial
+import random as ran
 import time
 tnp = tf.experimental.numpy
 
 
 gpus = tf.config.list_physical_devices('GPU')
 with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
+    
 
 
     class GenerateFiducials:
-        def __init__(self,xlim,ylim,zlim,target):
+        def __init__(self,xlim,ylim,zlim,target,sampling=100,name = 'PRM'):
             self.xlim = xlim
             self.ylim = ylim
             self.zlim = zlim
             self.target = target
-        def compute_bounce(self):
+            self.samples=sampling
+            self.name = name
+        def generate_B(self,B):
+            df = []
+            vdata = []
+            for i in range(int(self.samples/4)):
+                l = []
+                r = [ran.random() for i in range(len(B))]
+                r = np.array([r])
+                r = r/r.sum()
+                x_ = B.transpose()@r.transpose()
+                vdata.append(x_.transpose()[0])
+            return np.array(vdata)
+        def get_mesh(self):
+            height = self.xlim
+            width = self.ylim
+            x = width/2
+            y = height/2
+            z = 0 
+            q1_1  = np.array([0,x,z])
+            q1_2  = np.array([x,y,z])
+            q1_3  = np.array([x,0,z])
+
+            q2_1  = np.array([0,-x,z])
+            q2_2  = np.array([x,-y,z])
+            q2_3  = np.array([x,0,z])
+
+            q3_1  = np.array([0,-x,z])
+            q3_2  = np.array([-x,-y,z])
+            q3_3  = np.array([-x,0,z])
+
+            q4_1  = np.array([0,y,z])
+            q4_2  = np.array([-x,y,z])
+            q4_3  = np.array([-x,0,z])
+
+            B1=np.array([q1_1,q1_2,q1_3])
+            B2=np.array([q2_1,q2_2,q2_3])
+            B3=np.array([q3_1,q3_2,q3_3])
+            B4=np.array([q4_1,q4_2,q4_3])
+            hulls = [B1,B2,B3,B4]
+                
+            data = []
+            for i in hulls:
+                vdata = self.generate_B(i)
+                if len(data)==0:
+                    data = vdata
+                else:
+                    data = np.vstack((data,vdata))
+            return tnp.array(data+np.array([0,y,0]),dtype='float16')
+
+        
+
+        def compute_bounds(self):
             x_axis = tf.constant([1,0,0],dtype='float16')
             y_axis = tf.constant([0,1,0],dtype='float16')
             z_axis = tf.constant([0,0,1],dtype='float16')
@@ -53,8 +107,8 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             global number_of_fiducials
             global number2generate
 
-            name = 'PRM_set7'
-            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+str(self.target)+'.csv'
+            
+            csv_file = self.name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+str(self.target)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
@@ -91,7 +145,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     ndi_con_list.append(int(geo_pass))
                     print(imd)
                     # print(len(tre_list))
-                if len(tre_list) == 2:
+                if len(tre_list) == 35:
 
                     print(tre)
                     ff = tnp.array(fids_list)
@@ -127,13 +181,13 @@ if __name__ == '__main__':
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
     number2generate = 4
-    pass_tre = 0.4
+    pass_tre = 0.2
     number_of_fiducials = 4
     sampling = 25
 
     target = tnp.array([0,-50,220])
-    gen = GenerateFiducials(xlim,ylim,zlim,target)
-    fids = gen.compute_bounce()
+    gen = GenerateFiducials(xlim,ylim,zlim,target,100,'PRM_triang')
+    fids = gen.get_mesh()
     n = len(fids)
     k = number2generate
     iterations = C = factorial(n) / (factorial(k) * factorial(n - k))

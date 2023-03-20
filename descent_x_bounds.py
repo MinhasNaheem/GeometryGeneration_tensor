@@ -3,8 +3,11 @@ import random as ran
 import plotly.graph_objects as go
 
 #Generate
-x = 162.5
-y = 172.5
+height = 345
+width = 325
+samples = 1000
+x = width/2
+y = height/2
 z = 0 
 q1_1  = np.array([0,x,z])
 q1_2  = np.array([x,y,z])
@@ -26,12 +29,12 @@ B1=np.array([q1_1,q1_2,q1_3])
 B2=np.array([q2_1,q2_2,q2_3])
 B3=np.array([q3_1,q3_2,q3_3])
 B4=np.array([q4_1,q4_2,q4_3])
-
+hulls = [B1,B2,B3,B4]
 
 def generate_B(B):
     df = []
     vdata = []
-    for i in range(150):
+    for i in range(int(samples/4)):
         l = []
         r = [ran.random() for i in range(len(B))]
         r = np.array([r])
@@ -40,16 +43,19 @@ def generate_B(B):
         vdata.append(x_.transpose()[0])
     return np.array(vdata)
 
-hulls = [B1,B2,B3,B4]
-data = []
-for i in hulls:
-    vdata = generate_B(i)
-    if len(data)==0:
-        data = vdata
-    else:
-        data = np.vstack((data,vdata))
+def get_mesh(hulls):
+    
+    data = []
+    for i in hulls:
+        vdata = generate_B(i)
+        if len(data)==0:
+            data = vdata
+        else:
+            data = np.vstack((data,vdata))
+    return data
 
-data = np.array(data)
+
+data = get_mesh(hulls)
 def plot_fids(fids,target=np.array([[0,0,0]])):
     target = np.around(target,2)
     fids=np.vstack((fids,[0, 0, 0]))
