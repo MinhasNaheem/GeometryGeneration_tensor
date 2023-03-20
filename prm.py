@@ -48,18 +48,18 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return fids
 
         def tre_mesh(self,fid,combin):
-            start = time.time()
+            # start = time.time()
             global pass_tre
             global number_of_fiducials
             global number2generate
 
-            name = 'PRM_set6'
-            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+'.csv'
+            name = 'PRM_set7'
+            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+str(self.target)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
             minimum = 50
-            increment = 15
+            increment = 5
             fid = fid.numpy()
 
             for i in combin:
@@ -75,7 +75,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     fiducials.append(fid[i[j]])
                 
                 target1 = self.target
-                target2 = self.target  + np.array([0,10,10])
+                target2 = self.target  + np.array([0,40,40])
                 tre1 = compute_tre(fiducials,target1)
                 tre2 = compute_tre(fiducials,target2)
                 tre = (tre1+tre2)/2
@@ -122,16 +122,16 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return 1
 
 if __name__ == '__main__':
-    xlim = 325
-    ylim= 345
+    xlim = 345
+    ylim = 325
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
     number2generate = 4
-    pass_tre = 0.2
+    pass_tre = 0.4
     number_of_fiducials = 4
     sampling = 25
 
-    target = tnp.array([0,50,220])
+    target = tnp.array([0,-50,220])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
     fids = gen.compute_bounce()
     n = len(fids)
