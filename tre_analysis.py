@@ -4,7 +4,7 @@ np.set_printoptions(suppress=True)
 from functions import *
 import time
 
-filename = 'straight_probe_new_85,155,0.csv'
+filename = 'PRM_set6_325,345,0.csv'
 k = 4
 df = pd.read_csv(filename)
 # condition to check if the geometry constraints are passed
@@ -27,8 +27,8 @@ tre = df.iloc[:,-2].to_numpy()
 
 result = np.where(tre == np.amin(tre))
 # result = np.where(np.round(tre,2)==0.31)
-minimum = 40
-increment = 4
+minimum = 50
+increment = 15
 # chante the marker input
 marker0 = np.vstack((fid1[0],fid2[0],fid3[0],fid4[0]))
 imd0 = compute_intermarker (marker0,k)[:,2]
@@ -50,13 +50,13 @@ for index in range(len(tre)):
     # print(fids)
     # print (tre[index])
     dist = 10
-    newness = 80
+    newness = 100
 
     if min_dist_and_incr(imd,minimum,increment) and inter_dev - dist   >=  newness :
     #if True :
         temp = inter_dev-dist
         print(f'inter_dev-dist  :{temp}')
-        if count ==10:
+        if count ==5:
             break
         count = count + 1
         print("geometry pass",min_dist_and_incr(imd,minimum,increment))

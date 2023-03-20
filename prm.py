@@ -31,10 +31,12 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             a = sampling 
            
             #Defining bounds for the generation
-            for i in range(-xlim_half,xlim_half,a):
-                for j in range(0,ylim+a,a):
+            for i in range(-xlim_half,xlim_half+a,a):
+                for j in range(0,ylim,a):
                     # for k in range(-zlim_half,zlim_half+a,a):
                     vec.append(x_axis*i+y_axis*j)
+                    # vec.append(-x_axis*i+y_axis*j)
+                    # vec.append(tnp.array([0,80,250]))
 
             fids = tnp.array(vec,dtype='float16')
             # for i in range(-xlim_half,xlim_half+a,a):
@@ -51,13 +53,13 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             global number_of_fiducials
             global number2generate
 
-            name = 'AWL_HighSample2'
-            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+str(target)+'.csv'
+            name = 'PRM_set6'
+            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
             minimum = 50
-            increment = 5
+            increment = 15
             fid = fid.numpy()
 
             for i in combin:
@@ -73,7 +75,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     fiducials.append(fid[i[j]])
                 
                 target1 = self.target
-                target2 = self.target  + np.array([0,40,0])
+                target2 = self.target  + np.array([0,10,10])
                 tre1 = compute_tre(fiducials,target1)
                 tre2 = compute_tre(fiducials,target2)
                 tre = (tre1+tre2)/2
@@ -120,15 +122,16 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return 1
 
 if __name__ == '__main__':
-    xlim = 95
-    ylim= 120
+    xlim = 325
+    ylim= 345
     zlim = 0
     global number2generate, pass_tre, number_of_fiducials, sampling
     number2generate = 4
     pass_tre = 0.2
     number_of_fiducials = 4
-    sampling = 10
-    target = tnp.array([0,-180,55])
+    sampling = 25
+
+    target = tnp.array([0,50,220])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
     fids = gen.compute_bounce()
     n = len(fids)
