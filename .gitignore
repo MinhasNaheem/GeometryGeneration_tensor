@@ -1,3 +1,4 @@
 *.csv
 *.html
-data/
+data/*.csv
+data/*.html
