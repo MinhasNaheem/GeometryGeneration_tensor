@@ -46,13 +46,13 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
             return fids
 
         def tre_mesh(self,fid,combin):
-            start = time.time()
+            # start = time.time()
             global pass_tre
             global number_of_fiducials
             global number2generate
 
             name = 'AWL_HighSample2'
-            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+str(target)+'.csv'
+            csv_file = name+'_'+str(xlim)+','+str(ylim)+','+str(zlim)+'_'+str(target)+'.csv'
             fids_list = []
             tre_list = []
             ndi_con_list = []
@@ -87,7 +87,7 @@ with tf.device('/job:localhost/replica:0/task:0/device:GPU:0'):
                     tre_list.append(tre)
                     fids_list.append(fiducials)
                     ndi_con_list.append(int(geo_pass))
-                    print(imd)
+                    # print(imd)
                     # print(len(tre_list))
                 if len(tre_list) == 2:
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     number2generate = 4
     pass_tre = 0.2
     number_of_fiducials = 4
-    sampling = 10
+    sampling = 25
     target = tnp.array([0,-180,55])
     gen = GenerateFiducials(xlim,ylim,zlim,target)
     fids = gen.compute_bounce()
